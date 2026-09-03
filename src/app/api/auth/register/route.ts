@@ -34,9 +34,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: "User created successfully" }, { status: 201 });
   } catch (error: any) {
+    console.error("Registration error:", error);
     if (error && (error as any).name === "ZodError") {
       return NextResponse.json({ message: (error as any).errors[0].message }, { status: 400 });
     }
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
+    return NextResponse.json({ message: error?.message || "Something went wrong" }, { status: 500 });
   }
 }
