@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { parsePdfBuffer } from "@/lib/resume/parser";
 import fs from "fs/promises";
 import path from "path";
+import os from "os";
 
 export async function POST(req: Request) {
   try {
@@ -40,13 +41,18 @@ export async function POST(req: Request) {
       );
     }
 
-    // Save file locally for MVP (in real app, use S3)
-    const storageDir = path.join(process.cwd(), ".storage", "resumes");
-    await fs.mkdir(storageDir, { recursive: true });
-    
+    // Save file locally if writable (fallback to os.tmpdir() on Vercel)
     const fileName = `${session.user.id}-${Date.now()}.pdf`;
-    const filePath = path.join(storageDir, fileName);
-    await fs.writeFile(filePath, buffer);
+    let filePath = fileName;
+    try {
+      const isServerless = process.env.NODE_ENV === "production" || process.env.VERCEL;
+      const baseDir = isServerless ? path.join(os.tmpdir(), "resumes") : path.join(process.cwd(), ".storage", "resumes");
+      await fs.mkdir(baseDir, { recursive: true });
+      filePath = path.join(baseDir, fileName);
+      await fs.writeFile(filePath, buffer);
+    } catch (fsErr) {
+      console.warn("[Upload] Local disk write skipped (serverless environment):", fsErr);
+    }
 
     // Save to DB in a transaction
     await db.$transaction(async (tx) => {
@@ -116,8 +122,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ message: "Resume processed successfully" }, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Resume upload error:", error);
-    return NextResponse.json({ message: "Failed to process resume" }, { status: 500 });
+    return NextResponse.json({ message: error?.message || "Failed to process resume" }, { status: 500 });
   }
 }
