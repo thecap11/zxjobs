@@ -58,60 +58,85 @@ export function calculateMatch(candidate: CandidateData, job: NormalizedJob): Ma
     skillsScore = 50;
   }
 
+  const jobTitleLower = job.title.toLowerCase();
+  const isSeniorJob = /\b(senior|sr\.?|lead|principal|staff|architect|director|head|vp|manager)\b/i.test(job.title);
+  const isEntryJob = /\b(fresher|entry[- ]level|junior|jr\.?|trainee|intern|internship|associate|graduate)\b/i.test(job.title + " " + (job.description || ""));
+  const isCandidateFresher = candidate.experienceYears === 0 || (candidate.experienceYears !== null && candidate.experienceYears <= 1);
+
   // Experience (25%)
-  if (job.experienceMin !== undefined && candidate.experienceYears !== null) {
+  if (isCandidateFresher) {
+    if (isSeniorJob || (job.experienceMin !== undefined && job.experienceMin >= 3)) {
+      experienceScore = 0;
+    } else if (isEntryJob || (job.experienceMin !== undefined && job.experienceMin <= 1) || (job.experienceMax !== undefined && job.experienceMax <= 2)) {
+      experienceScore = 100;
+    } else {
+      experienceScore = 50;
+    }
+  } else if (job.experienceMin !== undefined && candidate.experienceYears !== null) {
     if (candidate.experienceYears >= job.experienceMin) {
       experienceScore = 100;
     } else {
-      // Calculate drop-off. If requires 5, has 2 -> 40%
       experienceScore = Math.max(0, Math.round((candidate.experienceYears / job.experienceMin) * 100));
     }
   } else if (job.experienceMax !== undefined && candidate.experienceYears !== null && candidate.experienceYears > job.experienceMax + 2) {
-      // Overqualified? slightly reduce score
-      experienceScore = 80;
+    experienceScore = 75;
   } else {
-    experienceScore = 100;
+    experienceScore = 90;
   }
 
   // Role (20%)
   if (candidate.preferredRoles.length > 0) {
-    const jobTitleLower = job.title.toLowerCase();
     const roleMatch = candidate.preferredRoles.some(role => jobTitleLower.includes(role.toLowerCase()));
     if (roleMatch) {
       roleScore = 100;
     } else {
-      // Partial match? 
+      // Partial match on meaningful terms (e.g. "Designer", "UX", "Frontend")
       const hasOverlap = candidate.preferredRoles.some(role => {
-          const parts = role.toLowerCase().split(' ');
-          return parts.some(p => p.length > 3 && jobTitleLower.includes(p));
+        const parts = role.toLowerCase().split(/[\s/]+/);
+        return parts.some(p => p.length > 2 && jobTitleLower.includes(p));
       });
-      roleScore = hasOverlap ? 50 : 0;
+      roleScore = hasOverlap ? 60 : 0;
     }
   } else {
-    roleScore = 100; // No preference
+    roleScore = 80;
   }
 
   // Location (10%)
   if (job.remoteType === "Remote") {
     locationScore = 100;
   } else if (job.location && candidate.location) {
-    if (job.location.toLowerCase() === candidate.location.toLowerCase()) {
+    if (job.location.toLowerCase().includes(candidate.location.toLowerCase()) || candidate.location.toLowerCase().includes(job.location.toLowerCase())) {
       locationScore = 100;
     } else {
-      locationScore = 0; // Not remote and different location
+      locationScore = 0;
     }
   } else {
     locationScore = 100;
   }
 
   // Weighted calculation
-  const overallScore = Math.round(
+  let overallScore = Math.round(
     (skillsScore * 0.40) +
     (experienceScore * 0.25) +
     (roleScore * 0.20) +
     (locationScore * 0.10) +
     (educationScore * 0.05)
   );
+
+  // Strict Seniority Guard: Cap senior jobs for freshers so they never rank high
+  if (isCandidateFresher && isSeniorJob) {
+    overallScore = Math.min(overallScore, 30);
+  }
+
+  // Strong bonus for entry/fresher roles that match candidate's role
+  if (isCandidateFresher && isEntryJob && roleScore >= 60) {
+    overallScore = Math.min(100, overallScore + 15);
+  }
+
+  // Heavy penalty if candidate preferred roles are specified and job role does not match at all
+  if (candidate.preferredRoles.length > 0 && roleScore === 0) {
+    overallScore = Math.round(overallScore * 0.4);
+  }
 
   return {
     job,
@@ -124,20 +149,27 @@ export function calculateMatch(candidate: CandidateData, job: NormalizedJob): Ma
       education: educationScore,
     },
     matchingSkills,
-    missingSkills
+    missingSkills,
   };
 }
 
 export function rankJobs(candidate: CandidateData, jobs: NormalizedJob[]): MatchResult[] {
-  // Hard filter: drop jobs that require significantly more experience than candidate has
-  const experience = candidate.experienceYears ?? 0;
-  const filtered = jobs.filter((job) => {
-    if (job.experienceMin !== undefined && job.experienceMin > experience + 2) {
-      return false; // Requires too much experience
-    }
-    return true;
-  });
+  const isCandidateFresher = candidate.experienceYears === 0 || (candidate.experienceYears !== null && candidate.experienceYears <= 1);
 
-  const matches = filtered.map(job => calculateMatch(candidate, job));
-  return matches.sort((a, b) => b.overallScore - a.overallScore);
+  return jobs
+    .filter((job) => {
+      // For freshers, filter out Senior/Lead/Staff/Principal roles completely
+      if (isCandidateFresher) {
+        if (/\b(senior|sr\.?|lead|principal|staff|architect|director|head|vp|manager)\b/i.test(job.title)) {
+          return false;
+        }
+        if (job.experienceMin !== undefined && job.experienceMin >= 3) {
+          return false;
+        }
+      }
+      return true;
+    })
+    .map((job) => calculateMatch(candidate, job))
+    .filter((match) => match.overallScore >= 40)
+    .sort((a, b) => b.overallScore - a.overallScore);
 }

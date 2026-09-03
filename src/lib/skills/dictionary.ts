@@ -24,7 +24,7 @@ export const SKILL_ALIASES: Record<string, string> = {
   // Backend & Languages
   "python": "Python", "django": "Django", "flask": "Flask", "fastapi": "FastAPI",
   "java": "Java", "spring": "Spring", "spring boot": "Spring Boot",
-  "c#": "C#", "csharp": "C#", ".net": ".NET", "asp.net": ".NET", "dotnet": ".NET",
+  "c#": "C#", "csharp": "C#", "asp.net": ".NET", "dotnet": ".NET",
   "c++": "C++", "cpp": "C++", "c": "C",
   "golang": "Go", "go": "Go",
   "php": "PHP", "laravel": "Laravel", "symfony": "Symfony",
@@ -60,8 +60,15 @@ export const SKILL_ALIASES: Record<string, string> = {
   "numpy": "NumPy", "pandas": "Pandas", "tensorflow": "TensorFlow", "pytorch": "PyTorch", "scikit-learn": "Scikit-Learn",
   "power bi": "Power BI", "tableau": "Tableau", "excel": "Excel",
 
-  // Design
-  "figma": "Figma", "ui/ux": "UI/UX", "adobe xd": "Adobe XD", "photoshop": "Photoshop",
+  // Design & UX
+  "figma": "Figma", "figjam": "FigJam", "ui/ux": "UI/UX", "ui": "UI Design", "ux": "UX Design",
+  "ui design": "UI Design", "ux design": "UX Design", "adobe xd": "Adobe XD", "photoshop": "Photoshop",
+  "illustrator": "Illustrator", "canva": "Canva", "wireframing": "Wireframing", "wireframes": "Wireframing",
+  "prototyping": "Prototyping", "prototypes": "Prototyping", "user research": "User Research",
+  "ux research": "UX Research", "usability testing": "Usability Testing", "design systems": "Design Systems",
+  "design system": "Design Systems", "interaction design": "Interaction Design", "visual design": "Visual Design",
+  "user flows": "User Flows", "user flow": "User Flows", "information architecture": "Information Architecture",
+  "typography": "Typography", "product design": "Product Design", "user personas": "User Personas",
   
   // General & Tools
   "cybersecurity": "Cybersecurity", "security": "Security",
@@ -73,6 +80,21 @@ export const SKILL_ALIASES: Record<string, string> = {
 };
 
 export const ROLE_RULES = [
+  {
+    role: "UI/UX Designer",
+    requiredSkills: ["Figma", "UI/UX", "UI Design", "UX Design", "Wireframing", "Prototyping", "User Research", "Design Systems", "Adobe XD", "Interaction Design", "Visual Design"],
+    minMatches: 2
+  },
+  {
+    role: "Product Designer",
+    requiredSkills: ["Product Design", "Figma", "UI/UX", "Design Systems", "Prototyping", "User Research", "Interaction Design"],
+    minMatches: 2
+  },
+  {
+    role: "Graphic Designer",
+    requiredSkills: ["Photoshop", "Illustrator", "Canva", "Typography", "Visual Design"],
+    minMatches: 2
+  },
   {
     role: "Frontend Developer",
     requiredSkills: ["React", "Vue", "Angular", "HTML", "CSS", "JavaScript", "TypeScript"],

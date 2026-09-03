@@ -119,7 +119,9 @@ export async function parsePdfBuffer(buffer: Buffer): Promise<ParsedResume> {
   const suggestedRoles = detectRoles(skills);
 
   // 6. Experience extraction (Enhanced)
-  let experienceYears = null;
+  let experienceYears: number | null = null;
+  const isFresherIndicator = /\b(fresher|fresh graduate|entry[- ]level|aspiring|student|intern\b|internship|seeking an entry|seeking entry|202[2-6]\s*[-–]\s*202[6-9])/i.test(text);
+
   const expRegexes = [
     /(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)(?:\s*of)?\s*(?:total\s+)?(?:experience|exp)/i,
     /(?:total\s+)?(?:experience|exp)[\s:|-]+(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)/i,
@@ -131,6 +133,11 @@ export async function parsePdfBuffer(buffer: Buffer): Promise<ParsedResume> {
       experienceYears = parseFloat(match[1]);
       break;
     }
+  }
+
+  // If candidate is explicitly seeking entry level or is a fresher/student, accurately set experience to 0
+  if (isFresherIndicator || experienceYears === null) {
+    experienceYears = 0;
   }
 
   // 7. Education extraction (Heuristic)
