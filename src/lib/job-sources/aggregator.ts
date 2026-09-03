@@ -23,7 +23,7 @@ const sources: JobSource[] = [
   new SimplyHiredSource(),
 ];
 
-const SEARCH_TIMEOUT_MS = 6500;
+const SEARCH_TIMEOUT_MS = 4500;
 
 const searchCache = new Map<string, { data: NormalizedJob[]; expiresAt: number }>();
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes

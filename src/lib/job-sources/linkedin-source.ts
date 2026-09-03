@@ -24,8 +24,8 @@ export class LinkedInJobsSource implements JobSource {
         expFilter = "&f_E=2%2C3"; // Entry level + Associate
       }
 
-      // Fetch 5 pages concurrently
-      const pages = [0, 25, 50, 75, 100];
+      // Fetch top 2 pages concurrently for speed
+      const pages = [0, 25];
       const pagePromises = pages.map((start) =>
         this.fetchPage(keywords, location, start, expFilter)
       );
@@ -50,7 +50,7 @@ export class LinkedInJobsSource implements JobSource {
     const url = `https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=${keywords}&location=${location}&f_TPR=r604800${expFilter}&start=${start}`;
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
 
     try {
       const response = await fetch(url, {

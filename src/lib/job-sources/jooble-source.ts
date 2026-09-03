@@ -33,7 +33,7 @@ export class JoobleSource implements JobSource {
     const url = `https://in.jooble.org/SearchResult?p=${page}&rgns=${location}&ukw=${query}`;
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
 
     try {
       const response = await fetch(url, {

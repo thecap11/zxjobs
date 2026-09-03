@@ -19,7 +19,7 @@ export class InstahyreSource implements JobSource {
       const url = `https://www.instahyre.com/search-jobs/?q=${q}&location=${loc}&experience_min=${expRange.min}&experience_max=${expRange.max}`;
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
 
       const response = await fetch(url, {
         signal: controller.signal,

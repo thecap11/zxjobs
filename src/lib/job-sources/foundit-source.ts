@@ -16,7 +16,7 @@ export class FounditSource implements JobSource {
       const url = `https://www.foundit.in/middleware/jobsearch?searchId=&query=${q}&location=${location}&sort=1&limit=30&offset=0&experienceRanges=${expRange.min}%7C${expRange.max}`;
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
 
       const response = await fetch(url, {
         signal: controller.signal,
