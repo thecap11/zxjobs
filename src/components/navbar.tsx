@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "./ui/button";
 
@@ -11,9 +12,13 @@ export function Navbar() {
     <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/40">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-blue-600 text-white font-bold shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all">
-            Z
-          </div>
+          <Image
+            src="/logo.jpg"
+            alt="zxjobs logo"
+            width={32}
+            height={32}
+            className="rounded-lg shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all object-cover"
+          />
           <span className="font-extrabold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
             zxjobs
           </span>

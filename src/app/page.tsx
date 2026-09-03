@@ -1,15 +1,18 @@
 "use client";
 
 import Aurora from "@/components/ui/Aurora";
-import BlurText from "@/components/ui/BlurText";
+import TextType from "@/components/ui/TextType";
 import ShinyText from "@/components/ui/ShinyText";
 import SpotlightCard from "@/components/ui/SpotlightCard";
 import GradientText from "@/components/ui/GradientText";
+import GradientWaves from "@/components/ui/GradientWaves";
+import WarpText from "@/components/ui/WarpText";
 import { Bricolage_Grotesque } from "next/font/google";
 
 const bricolage = Bricolage_Grotesque({ subsets: ["latin"], weight: ["800"] });
 
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, FileText, Target, Send, Zap, Shield, BarChart3, Users, Globe, Clock } from "lucide-react";
@@ -41,7 +44,28 @@ export default function Home() {
         <section className="w-full relative isolate min-h-screen flex items-center justify-center pt-28 pb-24 overflow-hidden bg-black">
           {/* Animated WebGL Background */}
           <div className="absolute inset-0 z-0">
-            <Aurora colorStops={["#0a0a0f", "#0f172a", "#1e1b4b", "#0a0a0f"]} blend={0.5} amplitude={1.0} speed={0.4} />
+            <GradientWaves
+              horizonColor="#5227FF"
+              waveColor="#FF9FFC"
+              crestColor="#FFFFFF"
+              speed={0.4}
+              amplitude={2.5}
+              waveScale={0.6}
+              waveRatio={0.9}
+              swell={35}
+              turbulence={20}
+              tilt={1.11}
+              zoom={1.0}
+              height={5.5}
+              fogDepth={15}
+              detail="medium"
+              brightness={1.0}
+              opacity={1.0}
+              mouseInteraction={true}
+              parallaxStrength={0.5}
+              grain={true}
+              grainIntensity={0.05}
+            />
           </div>
 
           {/* Premium gradient mesh overlays */}
@@ -66,39 +90,45 @@ export default function Home() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="flex justify-center mb-8"
+              className="flex justify-center mb-10"
             >
-              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl shadow-[0_0_30px_rgba(99,102,241,0.08)]">
-                <span className="relative flex h-2 w-2">
+              <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 backdrop-blur-md shadow-[0_0_25px_rgba(99,102,241,0.2)] hover:bg-indigo-500/20 transition-all cursor-pointer hover:scale-105 hover:shadow-[0_0_35px_rgba(99,102,241,0.3)]">
+                <span className="relative flex h-2.5 w-2.5">
                   <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
                 </span>
-                <ShinyText text="Matching 50,000+ jobs daily" disabled={false} speed={3} className="text-[13px] font-medium" />
+                <ShinyText text="Matching 50,000+ jobs daily" disabled={false} speed={3} className="text-[14px] font-semibold tracking-wide text-indigo-50" />
               </div>
             </motion.div>
 
             {/* Headline */}
-            <div className={`text-center mb-8 ${bricolage.className}`}>
-              <h1 className="text-[clamp(3rem,6.5vw,6.5rem)] leading-[1.02] tracking-[-0.04em] font-extrabold mx-auto max-w-[920px] flex flex-col items-center justify-center gap-1">
-                <span className="text-white/95" style={{ textShadow: '0 0 80px rgba(255,255,255,0.15)' }}>Your career,</span>
-                <GradientText
-                  colors={["#60A5FA", "#818CF8", "#A5B4FC", "#60A5FA"]}
-                  animationSpeed={5}
-                  showBorder={false}
-                  className="!text-[clamp(3rem,6.5vw,6.5rem)] !leading-[1.02] !font-extrabold !tracking-[-0.04em]"
-                >
-                  intelligently matched.
-                </GradientText>
-              </h1>
+            <div className="text-center mb-8 flex justify-center w-full">
+              <WarpText
+                text={"Stop scrolling.\nStart matching."}
+                color="#ffffff"
+                warpStrength={0.08}
+                warpScale={1.7}
+                speed={0.55}
+                pointerInfluence={0.42}
+                pointerStrength={0.38}
+                refraction={0.018}
+                ripple
+                fontSize="clamp(3rem, 6.5vw, 6.5rem)"
+                fontWeight={800}
+                fontFamily="Satoshi, sans-serif"
+                style={{ height: '240px', width: '100%', maxWidth: '920px' }}
+              />
             </div>
 
-            {/* Subhead with BlurText */}
-            <div className="text-center text-[17px] md:text-[19px] leading-[1.6] max-w-[600px] mx-auto mb-12 font-medium text-white/55">
-              <BlurText
-                text="Upload your resume. Our engine analyzes your skills, matches you to the right roles, and tracks every application."
-                delay={30}
-                animateBy="words"
-                direction="top"
+            {/* Subhead with TextType */}
+            <div className="text-center text-[17px] md:text-[19px] leading-[1.6] max-w-[800px] mx-auto mb-12 font-medium text-white/55">
+              <TextType
+                text="dating app for jobs! you upload resume we find the perfect matches"
+                typingSpeed={50}
+                pauseDuration={2000}
+                showCursor={true}
+                cursorCharacter="|"
+                className="justify-center"
               />
             </div>
 
@@ -420,9 +450,13 @@ export default function Home() {
           <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-10 mb-16">
             <div className="col-span-2 md:col-span-1">
               <Link href="/" className="inline-flex items-center gap-2.5 mb-5">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-primary/20">
-                  Z
-                </div>
+                <Image
+                  src="/logo.jpg"
+                  alt="zxjobs logo"
+                  width={32}
+                  height={32}
+                  className="rounded-lg shadow-lg shadow-primary/20 object-cover"
+                />
                 <span className="font-extrabold text-lg tracking-tight">zxjobs</span>
               </Link>
               <p className="text-sm text-muted-foreground/60 leading-relaxed max-w-[220px]">
