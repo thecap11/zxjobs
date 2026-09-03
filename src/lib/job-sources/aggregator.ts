@@ -11,16 +11,12 @@ import { InstahyreSource } from "./instahyre-source";
 import { InternshalaSource } from "./internshala-source";
 import { SimplyHiredSource } from "./simplyhired-source";
 import { getFallbackJobs } from "./fallback-data";
+import { RemotiveSource } from "./remotive-source";
 
 const sources: JobSource[] = [
   new FounditSource(),
-  new InstahyreSource(),
   new LinkedInJobsSource(),
-  new JoobleSource(),
-  new IndeedIndiaSource(),     
-  new FreshersworldSource(),
-  new InternshalaSource(),
-  new SimplyHiredSource(),
+  new RemotiveSource(),
 ];
 
 const SEARCH_TIMEOUT_MS = 4500;
@@ -99,13 +95,17 @@ export class JobAggregator {
       }
     });
 
-    let dedupedJobs = Array.from(uniqueJobsMap.values());
-    console.log(`Total: ${allJobs.length} raw → ${dedupedJobs.length} after dedup`);
+    // Merge curated company listings so the user always has premium matches
+    const curatedJobs = getFallbackJobs(criteria);
+    curatedJobs.forEach((job) => {
+      const fp = generateJobFingerprint(job);
+      if (!uniqueJobsMap.has(fp)) {
+        uniqueJobsMap.set(fp, job);
+      }
+    });
 
-    if (dedupedJobs.length === 0) {
-      console.log(`[JobAggregator] Using curated jobs fallback for: ${cacheKey}`);
-      dedupedJobs = getFallbackJobs(criteria);
-    }
+    const dedupedJobs = Array.from(uniqueJobsMap.values());
+    console.log(`Total after merging curated: ${dedupedJobs.length} jobs`);
 
     // Save to DB Cache (24 hours TTL)
     try {
