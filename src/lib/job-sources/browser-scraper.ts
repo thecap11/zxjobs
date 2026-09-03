@@ -21,25 +21,33 @@ export async function scrapeWithBrowser(
   waitForSelector?: string,
   timeoutMs: number = 15000
 ): Promise<string> {
-  const b = await getBrowser();
-  const context: BrowserContext = await b.newContext({
-    userAgent:
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    locale: "en-IN",
-    timezoneId: "Asia/Kolkata",
-    extraHTTPHeaders: {
-      "Accept-Language": "en-IN,en;q=0.9",
-    },
-  });
+  // On Vercel / serverless environments, local Chromium executable is not present
+  if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
+    return "";
+  }
 
-  const page: Page = await context.newPage();
-
-  // Evade bot detection
-  await page.addInitScript(() => {
-    Object.defineProperty(navigator, "webdriver", { get: () => undefined });
-  });
+  let context: BrowserContext | null = null;
+  let page: Page | null = null;
 
   try {
+    const b = await getBrowser();
+    context = await b.newContext({
+      userAgent:
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      locale: "en-IN",
+      timezoneId: "Asia/Kolkata",
+      extraHTTPHeaders: {
+        "Accept-Language": "en-IN,en;q=0.9",
+      },
+    });
+
+    page = await context.newPage();
+
+    // Evade bot detection
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "webdriver", { get: () => undefined });
+    });
+
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: timeoutMs });
     if (waitForSelector) {
       await page.waitForSelector(waitForSelector, { timeout: 8000 }).catch(() => {});
@@ -48,8 +56,11 @@ export async function scrapeWithBrowser(
       await page.waitForTimeout(2000);
     }
     return await page.content();
+  } catch (err) {
+    console.warn("[BrowserScraper] Playwright scraping failed or unavailable:", err);
+    return "";
   } finally {
-    await page.close();
-    await context.close();
+    if (page) await page.close().catch(() => {});
+    if (context) await context.close().catch(() => {});
   }
 }

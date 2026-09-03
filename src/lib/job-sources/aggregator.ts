@@ -13,7 +13,10 @@ import { SimplyHiredSource } from "./simplyhired-source";
 import { getFallbackJobs } from "./fallback-data";
 
 const sources: JobSource[] = [
-  new LinkedInJobsSource(),    
+  new FounditSource(),
+  new InstahyreSource(),
+  new LinkedInJobsSource(),
+  new JoobleSource(),
   new IndeedIndiaSource(),     
   new FreshersworldSource(),
   new InternshalaSource(),
