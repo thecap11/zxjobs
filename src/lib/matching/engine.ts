@@ -59,18 +59,18 @@ export function calculateMatch(candidate: CandidateData, job: NormalizedJob): Ma
   }
 
   const jobTitleLower = job.title.toLowerCase();
-  const isSeniorJob = /\b(senior|sr\.?|lead|principal|staff|architect|director|head|vp|manager)\b/i.test(job.title);
-  const isEntryJob = /\b(fresher|entry[- ]level|junior|jr\.?|trainee|intern|internship|associate|graduate)\b/i.test(job.title + " " + (job.description || ""));
+  const isSenior = isSeniorJob(job);
+  const isEntryJob = /\b(fresher|entry[- ]level|junior|jr\.?|associate|graduate)\b/i.test(job.title + " " + (job.description || ""));
   const isCandidateFresher = candidate.experienceYears === 0 || candidate.experienceYears === null || candidate.experienceYears <= 1;
 
   // Experience (25%)
   if (isCandidateFresher) {
-    if (isSeniorJob || (job.experienceMin !== undefined && job.experienceMin >= 3)) {
+    if (isSenior) {
       experienceScore = 0;
     } else if (isEntryJob || (job.experienceMin !== undefined && job.experienceMin <= 1) || (job.experienceMax !== undefined && job.experienceMax <= 2)) {
       experienceScore = 100;
     } else {
-      experienceScore = 50;
+      experienceScore = 60;
     }
   } else if (job.experienceMin !== undefined && candidate.experienceYears !== null) {
     if (candidate.experienceYears >= job.experienceMin) {
@@ -138,7 +138,7 @@ export function calculateMatch(candidate: CandidateData, job: NormalizedJob): Ma
   );
 
   // Strict Seniority Guard: Cap senior jobs for freshers so they never rank high
-  if (isCandidateFresher && isSeniorJob) {
+  if (isCandidateFresher && isSenior) {
     overallScore = Math.min(overallScore, 30);
   }
 
@@ -167,20 +167,46 @@ export function calculateMatch(candidate: CandidateData, job: NormalizedJob): Ma
   };
 }
 
+export function isInternship(job: NormalizedJob): boolean {
+  const internRegex = /\b(intern|internship|trainee|stagiere|apprentice|fellowship)\b/i;
+  if (internRegex.test(job.title)) return true;
+  if (job.employmentType && internRegex.test(String(job.employmentType))) return true;
+  if (job.description && /\b(internship\s+(?:program|role|opportunity)|intern\s+position)\b/i.test(job.description)) return true;
+  return false;
+}
+
+export function isSeniorJob(job: NormalizedJob): boolean {
+  // Reject if min experience is 2 or higher
+  if (job.experienceMin !== undefined && job.experienceMin >= 2) return true;
+
+  // Senior titles, levels, and ranks
+  const seniorTitleRegex = /\b(senior|sr\.?|lead|principal|staff|architect|director|head|vp|manager|specialist|expert|mid[- ]senior|experienced|consultant|\bii\b|\biii\b|\biv\b|level\s*[2-9]|l[3-9])\b/i;
+  if (seniorTitleRegex.test(job.title)) return true;
+
+  // Check description for required 3+, 4+, 5+ years of experience
+  if (job.description) {
+    const expMatch = job.description.match(/\b([3-9]|\d{2,})\+?\s*(?:years?|yrs?)(?:\s*of)?\s*(?:experience|exp)/i);
+    if (expMatch) return true;
+  }
+
+  return false;
+}
+
 export function rankJobs(candidate: CandidateData, jobs: NormalizedJob[]): MatchResult[] {
   const isCandidateFresher = candidate.experienceYears === 0 || candidate.experienceYears === null || candidate.experienceYears <= 1;
 
   return jobs
     .filter((job) => {
-      // For freshers, filter out Senior/Lead/Staff/Principal roles completely
-      if (isCandidateFresher) {
-        if (/\b(senior|sr\.?|lead|principal|staff|architect|director|head|vp|manager)\b/i.test(job.title)) {
-          return false;
-        }
-        if (job.experienceMin !== undefined && job.experienceMin >= 3) {
-          return false;
-        }
+      // 1. NEVER SHOW INTERNSHIPS (per explicit user requirement)
+      if (isInternship(job)) {
+        return false;
       }
+
+      // 2. FOR FRESHERS: NEVER SHOW SENIOR / EXPERIENCED JOBS
+      if (isCandidateFresher && isSeniorJob(job)) {
+        return false;
+      }
+
       return true;
     })
     .map((job) => calculateMatch(candidate, job))

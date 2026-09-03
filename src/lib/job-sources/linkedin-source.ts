@@ -19,7 +19,7 @@ export class LinkedInJobsSource implements JobSource {
       // 1=Internship, 2=Entry level, 3=Associate, 4=Mid-Senior, 5=Director, 6=Executive
       let expFilter = "";
       if (criteria.experience !== undefined && criteria.experience <= 1) {
-        expFilter = "&f_E=1%2C2"; // Internship + Entry level
+        expFilter = "&f_E=2"; // Entry level only (NO internships)
       } else if (criteria.experience !== undefined && criteria.experience <= 3) {
         expFilter = "&f_E=2%2C3"; // Entry level + Associate
       }
