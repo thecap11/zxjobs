@@ -76,10 +76,44 @@ export const SKILL_ALIASES: Record<string, string> = {
   "rest api": "REST API", "rest": "REST API", "restful": "REST API",
   "graphql": "GraphQL", "apollo": "GraphQL",
   "agile": "Agile", "scrum": "Scrum", "jira": "Jira",
-  "jest": "Jest", "cypress": "Cypress", "mocha": "Mocha", "selenium": "Selenium"
+  "jest": "Jest", "cypress": "Cypress", "mocha": "Mocha", "selenium": "Selenium",
+
+  // Marketing, Growth & Analytics
+  "hubspot": "HubSpot", "mailchimp": "Mailchimp", "wordpress": "WordPress",
+  "google analytics": "Google Analytics", "google analytics 4": "Google Analytics", "ga4": "Google Analytics",
+  "looker studio": "Looker Studio", "looker": "Looker",
+  "google tag manager": "Google Tag Manager", "gtm": "Google Tag Manager",
+  "google search console": "Google Search Console", "gsc": "Google Search Console",
+  "google ads": "Google Ads", "adwords": "Google Ads",
+  "meta ads": "Meta Ads", "facebook ads": "Meta Ads",
+  "seo": "SEO", "sem": "SEM", "content marketing": "Content Marketing",
+  "content strategy": "Content Strategy", "digital marketing": "Digital Marketing",
+  "performance marketing": "Performance Marketing", "growth marketing": "Growth Marketing",
+  "email marketing": "Email Marketing", "a/b testing": "A/B Testing",
+  "funnel analysis": "Funnel Analysis", "conversion rate optimization": "CRO", "cro": "CRO",
+  "social media marketing": "Social Media Marketing", "smm": "Social Media Marketing",
+  "lead generation": "Lead Generation", "copywriting": "Copywriting",
+  "crm": "CRM", "salesforce": "Salesforce", "attribution": "Attribution",
+  "audience segmentation": "Audience Segmentation", "kpi reporting": "KPI Reporting", "retargeting": "Retargeting",
+
+  // Business, Product & Project Management
+  "product management": "Product Management", "project management": "Project Management",
+  "confluence": "Confluence", "asana": "Asana", "trello": "Trello",
+  "financial modeling": "Financial Modeling", "accounting": "Accounting",
+  "business analysis": "Business Analysis", "market research": "Market Research"
 };
 
 export const ROLE_RULES = [
+  {
+    role: "Digital Marketing Specialist",
+    requiredSkills: ["Digital Marketing", "SEO", "Google Ads", "Meta Ads", "Google Analytics", "Performance Marketing", "Content Strategy", "Email Marketing", "HubSpot"],
+    minMatches: 2
+  },
+  {
+    role: "Growth Marketer",
+    requiredSkills: ["Growth Marketing", "Performance Marketing", "A/B Testing", "Funnel Analysis", "Google Analytics", "Looker Studio", "Google Ads"],
+    minMatches: 2
+  },
   {
     role: "UI/UX Designer",
     requiredSkills: ["Figma", "UI/UX", "UI Design", "UX Design", "Wireframing", "Prototyping", "User Research", "Design Systems", "Adobe XD", "Interaction Design", "Visual Design"],
