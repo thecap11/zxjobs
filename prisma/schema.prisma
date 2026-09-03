@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id               String            @id @default(cuid())
+  email            String            @unique
+  password         String
+  name             String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  candidateProfile CandidateProfile?
+  resume           Resume?
+  savedJobs        SavedJob[]
+  applications     Application[]
+}
+
+model CandidateProfile {
+  id              String           @id @default(cuid())
+  userId          String           @unique
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  experienceYears Float?
+  education       String?
+  location        String?
+  skills          CandidateSkill[]
+  jobPreference   JobPreference?
+  suggestedRoles  String[]         // e.g. ["Frontend Developer", "Full Stack Developer"]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model CandidateSkill {
+  id                 String           @id @default(cuid())
+  candidateProfileId String
+  candidateProfile   CandidateProfile @relation(fields: [candidateProfileId], references: [id], onDelete: Cascade)
+  name               String           // Normalized skill name, e.g. "React"
+}
+
+model JobPreference {
+  id                 String           @id @default(cuid())
+  candidateProfileId String           @unique
+  candidateProfile   CandidateProfile @relation(fields: [candidateProfileId], references: [id], onDelete: Cascade)
+  roles              String[]
+  locations          String[]
+  remote             String?          // e.g., "Remote", "Hybrid", "On-site"
+  salaryMin          Float?
+  employmentTypes    String[]
+}
+
+model Resume {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName  String
+  filePath  String
+  rawText   String   // The extracted text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SavedJob {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  source         String
+  sourceJobId    String?
+  title          String
+  company        String
+  location       String?
+  applicationUrl String
+  savedAt        DateTime @default(now())
+
+  @@unique([userId, applicationUrl]) // Prevent saving the same job twice
+}
+
+model Application {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  source         String
+  sourceJobId    String?
+  applicationUrl String
+  title          String
+  company        String
+  status         String   // "Saved", "Applied", "Interview", "Offer", "Rejected"
+  appliedAt      DateTime?
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  provider    String    // "GROQ", "GEMINI", "OPENROUTER"
+  key         String    @unique
+  exhaustedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model CachedJobSearch {
+  id        String   @id @default(cuid())
+  cacheKey  String   @unique
+  results   Json
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
