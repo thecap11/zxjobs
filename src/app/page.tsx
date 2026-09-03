@@ -36,19 +36,28 @@ export default function Home() {
       <main className="flex-1 flex flex-col items-center w-full relative z-10">
 
         {/* ═══════════════════════════════════════════════════════════════════
-import Aurora from "@/components/ui/Aurora";
-import BlurText from "@/components/ui/BlurText";
-import ShinyText from "@/components/ui/ShinyText";
-import SpotlightCard from "@/components/ui/SpotlightCard";
-
-        {/* ═══════════════════════════════════════════════════════════════════
             HERO SECTION — ReactBits Powered
         ═══════════════════════════════════════════════════════════════════ */}
-        <section className="w-full relative isolate min-h-screen flex items-center justify-center pt-32 pb-32 overflow-hidden bg-black">
+        <section className="w-full relative isolate min-h-screen flex items-center justify-center pt-28 pb-24 overflow-hidden bg-black">
           {/* Animated WebGL Background */}
           <div className="absolute inset-0 z-0">
-            <Aurora colorStops={["#000000", "#111827", "#1e1b4b", "#0f172a"]} blend={0.6} amplitude={1.2} speed={0.5} />
+            <Aurora colorStops={["#0a0a0f", "#0f172a", "#1e1b4b", "#0a0a0f"]} blend={0.5} amplitude={1.0} speed={0.4} />
           </div>
+
+          {/* Premium gradient mesh overlays */}
+          <div className="absolute inset-0 z-[1] pointer-events-none">
+            <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-blue-500/[0.07] via-indigo-500/[0.04] to-transparent rounded-full blur-[120px]" />
+            <div className="absolute top-[5%] right-[5%] w-[300px] h-[300px] bg-cyan-500/[0.05] rounded-full blur-[100px]" />
+            <div className="absolute top-[10%] left-[5%] w-[250px] h-[250px] bg-indigo-500/[0.05] rounded-full blur-[100px]" />
+          </div>
+
+          {/* Subtle grid texture */}
+          <div className="absolute inset-0 z-[1] pointer-events-none opacity-[0.015]" style={{
+            backgroundImage: 'linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)',
+            backgroundSize: '60px 60px',
+            maskImage: 'radial-gradient(ellipse 70% 50% at 50% 40%, #000 50%, transparent 100%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 70% 50% at 50% 40%, #000 50%, transparent 100%)',
+          }} />
 
           <div className="max-w-[1100px] mx-auto px-6 relative z-10 w-full">
 
@@ -57,23 +66,26 @@ import SpotlightCard from "@/components/ui/SpotlightCard";
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="flex justify-center mb-10"
+              className="flex justify-center mb-8"
             >
-              <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-white/10 bg-black/50 backdrop-blur-md">
-                <span className="flex h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl shadow-[0_0_30px_rgba(99,102,241,0.08)]">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+                </span>
                 <ShinyText text="Matching 50,000+ jobs daily" disabled={false} speed={3} className="text-[13px] font-medium" />
               </div>
             </motion.div>
 
             {/* Headline */}
-            <div className={`text-center mb-10 ${bricolage.className}`}>
-              <h1 className="text-[clamp(3.5rem,7vw,7rem)] leading-[1] tracking-[-0.03em] font-extrabold mx-auto max-w-[950px] flex flex-col items-center justify-center gap-2">
-                <span className="text-white drop-shadow-2xl">Your career,</span>
+            <div className={`text-center mb-8 ${bricolage.className}`}>
+              <h1 className="text-[clamp(3rem,6.5vw,6.5rem)] leading-[1.02] tracking-[-0.04em] font-extrabold mx-auto max-w-[920px] flex flex-col items-center justify-center gap-1">
+                <span className="text-white/95" style={{ textShadow: '0 0 80px rgba(255,255,255,0.15)' }}>Your career,</span>
                 <GradientText
-                  colors={["#60A5FA", "#818CF8", "#C084FC", "#60A5FA"]}
-                  animationSpeed={6}
+                  colors={["#60A5FA", "#818CF8", "#A5B4FC", "#60A5FA"]}
+                  animationSpeed={5}
                   showBorder={false}
-                  className="!text-[clamp(3.5rem,7vw,7rem)] !leading-[1] !font-extrabold !tracking-[-0.03em] drop-shadow-xl"
+                  className="!text-[clamp(3rem,6.5vw,6.5rem)] !leading-[1.02] !font-extrabold !tracking-[-0.04em]"
                 >
                   intelligently matched.
                 </GradientText>
@@ -81,7 +93,7 @@ import SpotlightCard from "@/components/ui/SpotlightCard";
             </div>
 
             {/* Subhead with BlurText */}
-            <div className="text-center text-[18px] md:text-[20px] leading-[1.7] max-w-[650px] mx-auto mb-14 font-medium text-white/60">
+            <div className="text-center text-[17px] md:text-[19px] leading-[1.6] max-w-[600px] mx-auto mb-12 font-medium text-white/55">
               <BlurText
                 text="Upload your resume. Our engine analyzes your skills, matches you to the right roles, and tracks every application."
                 delay={30}
@@ -95,16 +107,17 @@ import SpotlightCard from "@/components/ui/SpotlightCard";
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.6 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20"
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
             >
               <Link href="/register">
-                <button className="h-[56px] px-10 rounded-2xl text-[16px] font-bold tracking-tight transition-all duration-300 hover:scale-105 active:scale-95 inline-flex items-center gap-3 bg-white text-black shadow-[0_0_40px_rgba(255,255,255,0.3)]">
+                <button className="group h-[54px] px-9 rounded-2xl text-[15px] font-bold tracking-tight transition-all duration-300 hover:scale-[1.03] active:scale-95 inline-flex items-center gap-2.5 bg-white text-black shadow-[0_8px_40px_rgba(255,255,255,0.15)] hover:shadow-[0_8px_50px_rgba(255,255,255,0.25)]">
                   Start for Free
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                 </button>
               </Link>
               <Link href="/ats-checker">
-                <button className="h-[56px] px-10 rounded-2xl text-[16px] font-bold tracking-tight transition-all duration-300 hover:scale-105 active:scale-95 inline-flex items-center gap-3 bg-white/10 text-white backdrop-blur-md border border-white/20 hover:bg-white/20">
+                <button className="group h-[54px] px-9 rounded-2xl text-[15px] font-bold tracking-tight transition-all duration-300 hover:scale-[1.03] active:scale-95 inline-flex items-center gap-2.5 bg-white/[0.04] text-white/90 backdrop-blur-xl border border-white/[0.08] hover:bg-white/[0.08] hover:border-white/[0.12]">
+                  <Shield className="w-4 h-4 text-white/60 group-hover:text-white/80 transition-colors" />
                   Check ATS Score
                 </button>
               </Link>
@@ -112,54 +125,72 @@ import SpotlightCard from "@/components/ui/SpotlightCard";
 
             {/* Product Preview wrapped in SpotlightCard */}
             <motion.div
-              initial={{ opacity: 0, y: 60, scale: 0.95 }}
+              initial={{ opacity: 0, y: 50, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 1, delay: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="relative max-w-[900px] mx-auto"
+              className="relative max-w-[880px] mx-auto"
             >
-              <SpotlightCard className="p-1 rounded-[24px]" spotlightColor="rgba(99, 102, 241, 0.2)">
-                <div className="relative rounded-[20px] overflow-hidden bg-black/60 backdrop-blur-xl border border-white/10">
+              {/* Floating glow behind card */}
+              <div className="absolute -inset-4 bg-gradient-to-b from-indigo-500/[0.08] via-blue-500/[0.04] to-transparent rounded-[32px] blur-[40px] pointer-events-none" />
+
+              <SpotlightCard className="p-[1.5px] rounded-[22px] border border-white/[0.06]" spotlightColor="rgba(99, 102, 241, 0.15)">
+                <div className="relative rounded-[20.5px] overflow-hidden bg-[#0a0a0f]/80 backdrop-blur-2xl">
                 {/* Window chrome */}
-                <div className="flex items-center px-5 py-3" style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                <div className="flex items-center px-5 py-3 border-b border-white/[0.04] bg-white/[0.01]">
                   <div className="flex gap-[6px]">
-                    <div className="w-[10px] h-[10px] rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }} />
-                    <div className="w-[10px] h-[10px] rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }} />
-                    <div className="w-[10px] h-[10px] rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                    <div className="w-[10px] h-[10px] rounded-full bg-white/[0.06]" />
+                    <div className="w-[10px] h-[10px] rounded-full bg-white/[0.06]" />
+                    <div className="w-[10px] h-[10px] rounded-full bg-white/[0.06]" />
                   </div>
                   <div className="flex-1 flex justify-center">
-                    <div className="px-6 py-[3px] rounded-[6px] text-[11px] font-mono" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.22)' }}>
+                    <div className="px-5 py-[3px] rounded-[6px] text-[11px] font-mono bg-white/[0.02] border border-white/[0.04] text-white/20">
                       zxjobs.com/dashboard
                     </div>
                   </div>
                 </div>
 
                 {/* Dashboard mock content */}
-                <div className="p-5 md:p-7 space-y-4">
-                  <div className="grid grid-cols-3 gap-3">
+                <div className="p-5 md:p-6 space-y-3.5">
+                  {/* Stats row */}
+                  <div className="grid grid-cols-3 gap-2.5">
                     {[
                       { label: "Matched", value: "147", accent: "#818cf8" },
                       { label: "Match Rate", value: "94%", accent: "#6ee7b7" },
                       { label: "Applied", value: "23", accent: "#93c5fd" },
                     ].map((s, i) => (
-                      <div key={i} className="p-3.5 rounded-[12px]" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
-                        <p className="text-[10px] uppercase tracking-[0.1em] mb-1.5" style={{ color: 'rgba(255,255,255,0.25)' }}>{s.label}</p>
+                      <div key={i} className="p-3.5 rounded-[12px] bg-white/[0.015] border border-white/[0.04] relative overflow-hidden">
+                        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+                        <p className="text-[10px] uppercase tracking-[0.12em] mb-1.5 text-white/25 font-medium">{s.label}</p>
                         <p className="text-xl font-bold" style={{ color: s.accent }}>{s.value}</p>
                       </div>
                     ))}
                   </div>
-                  <div className="space-y-2.5">
+
+                  {/* Job rows */}
+                  <div className="space-y-2">
                     {[
-                      { title: "Senior Frontend Engineer", co: "TechCorp · Remote", pct: "96%" },
-                      { title: "Full Stack Developer", co: "ScaleUp Inc. · Hybrid", pct: "91%" },
-                      { title: "React Native Developer", co: "AppVerse · Bangalore", pct: "88%" },
+                      { title: "Senior Frontend Engineer", co: "TechCorp · Remote", pct: "96%", delay: "0s" },
+                      { title: "Full Stack Developer", co: "ScaleUp Inc. · Hybrid", pct: "91%", delay: "0.1s" },
+                      { title: "React Native Developer", co: "AppVerse · Bangalore", pct: "88%", delay: "0.2s" },
                     ].map((j, i) => (
-                      <div key={i} className="flex items-center justify-between p-3.5 rounded-[12px]" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
-                        <div>
-                          <p className="text-[13px] font-semibold" style={{ color: 'rgba(255,255,255,0.8)' }}>{j.title}</p>
-                          <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.25)' }}>{j.co}</p>
+                      <div key={i} className="group flex items-center justify-between p-3.5 rounded-[12px] bg-white/[0.015] border border-white/[0.04] hover:bg-white/[0.03] hover:border-white/[0.07] transition-all duration-300 cursor-default">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.05] flex items-center justify-center text-[11px] font-bold text-white/30">
+                            {j.co.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="text-[13px] font-semibold text-white/80 group-hover:text-white/95 transition-colors">{j.title}</p>
+                            <p className="text-[11px] mt-0.5 text-white/25">{j.co}</p>
+                          </div>
                         </div>
-                        <div className="px-2.5 py-1 rounded-[8px] text-[11px] font-bold" style={{ background: 'rgba(110,231,183,0.08)', color: '#6ee7b7', border: '1px solid rgba(110,231,183,0.12)' }}>
-                          {j.pct}
+                        <div className="flex items-center gap-2">
+                          {/* Match bar */}
+                          <div className="hidden sm:flex w-16 h-1 rounded-full bg-white/[0.04] overflow-hidden">
+                            <div className="h-full rounded-full bg-emerald-400/60" style={{ width: j.pct }} />
+                          </div>
+                          <div className="px-2.5 py-1 rounded-[8px] text-[11px] font-bold bg-emerald-400/[0.08] text-emerald-300 border border-emerald-400/[0.12]">
+                            {j.pct}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -170,8 +201,8 @@ import SpotlightCard from "@/components/ui/SpotlightCard";
             </motion.div>
           </div>
 
-          {/* Bottom separator */}
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+          {/* Bottom fade */}
+          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-black pointer-events-none z-[2]" />
         </section>
 
         {/* ═══════════════════════════════════════════════════════════════════
