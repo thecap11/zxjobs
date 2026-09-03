@@ -24,8 +24,8 @@ export class LinkedInJobsSource implements JobSource {
         expFilter = "&f_E=2%2C3"; // Entry level + Associate
       }
 
-      // Fetch top 2 pages concurrently for speed
-      const pages = [0, 25];
+      // Fetch 4 pages (100 jobs) concurrently
+      const pages = [0, 25, 50, 75];
       const pagePromises = pages.map((start) =>
         this.fetchPage(keywords, location, start, expFilter)
       );

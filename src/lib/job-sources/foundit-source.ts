@@ -11,27 +11,29 @@ export class FounditSource implements JobSource {
       const q = encodeURIComponent(query);
       const location = encodeURIComponent(criteria.location || "");
 
-      const url = `https://www.foundit.in/middleware/jobsearch?searchId=&query=${q}&location=${location}&sort=1&limit=40&offset=0`;
+      const offsets = [0, 40];
+      const pagePromises = offsets.map(async (offset) => {
+        const url = `https://www.foundit.in/middleware/jobsearch?searchId=&query=${q}&location=${location}&sort=1&limit=40&offset=${offset}`;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
+        try {
+          const response = await fetch(url, {
+            signal: controller.signal,
+            headers: {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+              "Accept": "*/*",
+              "Accept-Language": "en-IN,en;q=0.9",
+              "Referer": "https://www.foundit.in/",
+            },
+          });
+          clearTimeout(timeoutId);
 
-      const response = await fetch(url, {
-        signal: controller.signal,
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          "Accept": "*/*",
-          "Accept-Language": "en-IN,en;q=0.9",
-          "Referer": "https://www.foundit.in/",
-        },
-      });
-      clearTimeout(timeoutId);
+          if (!response.ok) return [];
 
-      if (response.ok) {
-        const data = await response.json();
-        const results = data?.jobSearchResponse?.data || [];
-        if (results.length > 0) {
-          const jobs: NormalizedJob[] = results
+          const data = await response.json();
+          const results = data?.jobSearchResponse?.data || [];
+          return results
             .filter((j: any) => j && j.title)
             .map((job: any) => {
               const rawSkills = typeof job.skills === "string"
@@ -58,14 +60,24 @@ export class FounditSource implements JobSource {
                 applicationUrl: appUrl,
                 employmentType: "Full-time",
                 postedAt: job.createdAt ? new Date(job.createdAt) : new Date(),
-              };
+              } as NormalizedJob;
             });
+        } catch {
+          clearTimeout(timeoutId);
+          return [];
+        }
+      });
 
-          console.log(`✓ Foundit: ${jobs.length} jobs`);
-          return jobs;
+      const settled = await Promise.allSettled(pagePromises);
+      let allJobs: NormalizedJob[] = [];
+      for (const res of settled) {
+        if (res.status === "fulfilled") {
+          allJobs = allJobs.concat(res.value);
         }
       }
-      return [];
+
+      console.log(`✓ Foundit: ${allJobs.length} jobs`);
+      return allJobs;
     } catch (error) {
       console.warn("Foundit source warning:", error instanceof Error ? error.message : error);
       return [];

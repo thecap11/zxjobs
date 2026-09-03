@@ -1,8 +1,8 @@
 import { JobSource, JobSearchCriteria, NormalizedJob } from "./types";
 import { buildSearchQuery } from "./search-helpers";
 
-export class ArbeitnowSource implements JobSource {
-  name = "Arbeitnow";
+export class RemoteOKSource implements JobSource {
+  name = "RemoteOK";
   enabled = true;
 
   async searchJobs(criteria: JobSearchCriteria): Promise<NormalizedJob[]> {
@@ -11,7 +11,7 @@ export class ArbeitnowSource implements JobSource {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 4000);
 
-      const response = await fetch("https://www.arbeitnow.com/api/job-board-api", {
+      const response = await fetch("https://remoteok.com/api", {
         signal: controller.signal,
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
@@ -23,38 +23,41 @@ export class ArbeitnowSource implements JobSource {
       if (!response.ok) return [];
 
       const data = await response.json();
-      const items = data?.data || [];
+      if (!Array.isArray(data)) return [];
 
+      // Filter relevant jobs (RemoteOK item[0] is disclaimer/legal)
       const queryWords = query.split(/[\s/]+/).filter(w => w.length > 2);
 
-      const jobs: NormalizedJob[] = items
+      const jobs: NormalizedJob[] = data
+        .slice(1)
         .filter((item: any) => {
-          if (!item.title) return false;
-          const title = item.title.toLowerCase();
+          if (!item.position) return false;
+          const pos = item.position.toLowerCase();
           const tags = Array.isArray(item.tags) ? item.tags.join(" ").toLowerCase() : "";
-          return queryWords.some(w => title.includes(w) || tags.includes(w));
+          // Check if matches role or tags
+          return queryWords.some(w => pos.includes(w) || tags.includes(w));
         })
         .slice(0, 40)
         .map((item: any) => ({
-          source: "Arbeitnow",
-          sourceJobId: `arbeit-${item.slug}`,
-          title: item.title,
-          company: item.company_name || "Global Tech",
-          location: item.location || (item.remote ? "Remote" : "India / Hybrid"),
-          remoteType: item.remote ? "Remote" : "Hybrid",
+          source: "RemoteOK",
+          sourceJobId: `remoteok-${item.id || item.slug}`,
+          title: item.position,
+          company: item.company || "Remote Co.",
+          location: item.location || "Remote / Worldwide",
+          remoteType: "Remote",
           experienceMin: 0,
           experienceMax: 3,
           skills: Array.isArray(item.tags) ? item.tags.slice(0, 6) : [],
           description: (item.description || "").replace(/<[^>]*>?/gm, "").substring(0, 400),
-          applicationUrl: item.url || `https://www.arbeitnow.com/jobs/${item.slug}`,
-          employmentType: (item.job_types || []).join(", ") || "Full-time",
-          postedAt: item.created_at ? new Date(item.created_at * 1000) : new Date(),
+          applicationUrl: item.url || `https://remoteok.com/remote-jobs/${item.id}`,
+          employmentType: "Full-time",
+          postedAt: item.date ? new Date(item.date) : new Date(),
         }));
 
-      console.log(`✓ Arbeitnow: ${jobs.length} jobs`);
+      console.log(`✓ RemoteOK: ${jobs.length} jobs`);
       return jobs;
     } catch (err) {
-      console.warn("Arbeitnow source warning:", err instanceof Error ? err.message : err);
+      console.warn("RemoteOK source warning:", err instanceof Error ? err.message : err);
       return [];
     }
   }

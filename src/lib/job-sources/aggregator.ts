@@ -12,14 +12,19 @@ import { InternshalaSource } from "./internshala-source";
 import { SimplyHiredSource } from "./simplyhired-source";
 import { getFallbackJobs } from "./fallback-data";
 import { RemotiveSource } from "./remotive-source";
+import { RemoteOKSource } from "./remoteok-source";
+import { ArbeitnowSource } from "./arbeitnow-source";
+import { JobicySource } from "./jobicy-source";
 
 const sources: JobSource[] = [
   new FounditSource(),
   new LinkedInJobsSource(),
+  new JobicySource(),
+  new ArbeitnowSource(),
   new RemotiveSource(),
 ];
 
-const SEARCH_TIMEOUT_MS = 4500;
+const SEARCH_TIMEOUT_MS = 5000;
 
 const searchCache = new Map<string, { data: NormalizedJob[]; expiresAt: number }>();
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
@@ -59,23 +64,35 @@ export class JobAggregator {
     }
 
     const enabledSources = sources.filter((s) => s.enabled);
-    console.log(`Searching ${enabledSources.length} sources: ${enabledSources.map(s => s.name).join(", ")}`);
+    console.log(`Searching ${enabledSources.length} sources across candidate roles...`);
 
-    const searchPromises = enabledSources.map(async (source) => {
-      try {
-        const result = await Promise.race([
-          source.searchJobs(criteria),
-          new Promise<NormalizedJob[]>((_, reject) =>
-            setTimeout(() => reject(new Error(`${source.name} timed out`)), SEARCH_TIMEOUT_MS)
-          ),
-        ]);
-        console.log(`✓ ${source.name}: ${result.length} jobs`);
-        return result;
-      } catch (error) {
-        console.error(`✗ ${source.name}:`, error instanceof Error ? error.message : error);
-        return [];
-      }
-    });
+    // Search across up to 2 preferred roles to maximize job discovery
+    const rolesToQuery = (criteria.jobTitles && criteria.jobTitles.length > 0)
+      ? criteria.jobTitles.slice(0, 2)
+      : ["Software Developer"];
+
+    const searchPromises: Promise<NormalizedJob[]>[] = [];
+
+    for (const role of rolesToQuery) {
+      const roleCriteria: JobSearchCriteria = {
+        ...criteria,
+        jobTitles: [role],
+      };
+
+      enabledSources.forEach((source) => {
+        searchPromises.push(
+          Promise.race([
+            source.searchJobs(roleCriteria),
+            new Promise<NormalizedJob[]>((_, reject) =>
+              setTimeout(() => reject(new Error(`${source.name} timed out`)), SEARCH_TIMEOUT_MS)
+            ),
+          ]).catch((error) => {
+            console.warn(`✗ ${source.name} (${role}):`, error instanceof Error ? error.message : error);
+            return [];
+          })
+        );
+      });
+    }
 
     const results = await Promise.allSettled(searchPromises);
 

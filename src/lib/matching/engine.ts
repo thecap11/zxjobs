@@ -90,12 +90,26 @@ export function calculateMatch(candidate: CandidateData, job: NormalizedJob): Ma
     if (roleMatch) {
       roleScore = 100;
     } else {
-      // Partial match on meaningful terms (e.g. "Designer", "UX", "Frontend")
+      // Partial match on meaningful terms
       const hasOverlap = candidate.preferredRoles.some(role => {
         const parts = role.toLowerCase().split(/[\s/]+/);
         return parts.some(p => p.length > 2 && jobTitleLower.includes(p));
       });
-      roleScore = hasOverlap ? 60 : 0;
+
+      // Synonym mappings (Developer / Engineer / Software / Web)
+      const isCandidateDev = candidate.preferredRoles.some(r => /developer|engineer|programmer|full\s*stack|frontend|backend/i.test(r));
+      const isJobDev = /developer|engineer|programmer|software|frontend|backend|fullstack|web|react|node|python|java|application/i.test(jobTitleLower);
+
+      const isCandidateDesigner = candidate.preferredRoles.some(r => /designer|design|ui|ux|product/i.test(r));
+      const isJobDesigner = /designer|design|ui|ux|product|creative|visual/i.test(jobTitleLower);
+
+      if (hasOverlap) {
+        roleScore = 80;
+      } else if ((isCandidateDev && isJobDev) || (isCandidateDesigner && isJobDesigner)) {
+        roleScore = 65;
+      } else {
+        roleScore = 0;
+      }
     }
   } else {
     roleScore = 80;
