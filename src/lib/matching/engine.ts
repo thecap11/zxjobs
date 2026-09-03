@@ -61,7 +61,7 @@ export function calculateMatch(candidate: CandidateData, job: NormalizedJob): Ma
   const jobTitleLower = job.title.toLowerCase();
   const isSeniorJob = /\b(senior|sr\.?|lead|principal|staff|architect|director|head|vp|manager)\b/i.test(job.title);
   const isEntryJob = /\b(fresher|entry[- ]level|junior|jr\.?|trainee|intern|internship|associate|graduate)\b/i.test(job.title + " " + (job.description || ""));
-  const isCandidateFresher = candidate.experienceYears === 0 || (candidate.experienceYears !== null && candidate.experienceYears <= 1);
+  const isCandidateFresher = candidate.experienceYears === 0 || candidate.experienceYears === null || candidate.experienceYears <= 1;
 
   // Experience (25%)
   if (isCandidateFresher) {
@@ -154,7 +154,7 @@ export function calculateMatch(candidate: CandidateData, job: NormalizedJob): Ma
 }
 
 export function rankJobs(candidate: CandidateData, jobs: NormalizedJob[]): MatchResult[] {
-  const isCandidateFresher = candidate.experienceYears === 0 || (candidate.experienceYears !== null && candidate.experienceYears <= 1);
+  const isCandidateFresher = candidate.experienceYears === 0 || candidate.experienceYears === null || candidate.experienceYears <= 1;
 
   return jobs
     .filter((job) => {

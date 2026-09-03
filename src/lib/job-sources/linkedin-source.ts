@@ -84,12 +84,19 @@ export class LinkedInJobsSource implements JobSource {
         const company = $el.find(".base-search-card__subtitle").first().text().trim() || "Unknown";
         const location = $el.find(".job-search-card__location").first().text().trim() || "India";
 
-        let applicationUrl = $el.find("a.base-card__full-link").first().attr("href") || "";
+        let applicationUrl = $el.find("a.base-card__full-link").first().attr("href") || $el.find("a").first().attr("href") || "";
         if (applicationUrl.includes("?")) applicationUrl = applicationUrl.split("?")[0];
+        
+        const urn = $el.find("[data-entity-urn]").attr("data-entity-urn") || $el.attr("data-entity-urn") || "";
+        const jobIdMatch = (applicationUrl + " " + urn).match(/(\d{7,})/);
+        const jobId = jobIdMatch ? jobIdMatch[1] : `${startOffset + index}`;
+        
+        // Always build the direct, canonical application page URL
+        if (jobId && /^\d+$/.test(jobId)) {
+          applicationUrl = `https://www.linkedin.com/jobs/view/${jobId}`;
+        }
         if (!applicationUrl) return;
 
-        const jobIdMatch = applicationUrl.match(/(\d{5,})/);
-        const jobId = jobIdMatch ? jobIdMatch[1] : `${startOffset + index}`;
         const dateText = $el.find("time").first().attr("datetime") || "";
 
         jobs.push({

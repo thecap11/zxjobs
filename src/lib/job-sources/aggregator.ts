@@ -95,17 +95,38 @@ export class JobAggregator {
       }
     });
 
-    // Merge curated company listings so the user always has premium matches
-    const curatedJobs = getFallbackJobs(criteria);
-    curatedJobs.forEach((job) => {
-      const fp = generateJobFingerprint(job);
-      if (!uniqueJobsMap.has(fp)) {
+    // Only inject fallback data if live scrapers returned 0 jobs
+    if (uniqueJobsMap.size === 0) {
+      console.log(`[JobAggregator] Live sources yielded 0 jobs, using emergency fallback for: ${cacheKey}`);
+      const fallbackJobs = getFallbackJobs(criteria);
+      fallbackJobs.forEach((job) => {
+        const fp = generateJobFingerprint(job);
         uniqueJobsMap.set(fp, job);
+      });
+    }
+
+    // Ensure every job has a direct, specific application URL (no generic domain roots)
+    const genericUrls = [
+      "https://www.linkedin.com/jobs",
+      "https://in.linkedin.com/jobs",
+      "https://in.indeed.com",
+      "https://www.indeed.com",
+      "https://razorpay.com/jobs",
+      "https://careers.cred.club",
+      "https://www.phonepe.com/careers",
+      "https://remotive.com",
+      "https://www.foundit.in",
+    ];
+
+    const dedupedJobs = Array.from(uniqueJobsMap.values()).map((job) => {
+      let url = (job.applicationUrl || "").trim();
+      if (!url || genericUrls.some(g => url === g || url === `${g}/`)) {
+        url = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(`${job.title} ${job.company}`)}&location=${encodeURIComponent(job.location || "India")}`;
       }
+      return { ...job, applicationUrl: url };
     });
 
-    const dedupedJobs = Array.from(uniqueJobsMap.values());
-    console.log(`Total after merging curated: ${dedupedJobs.length} jobs`);
+    console.log(`Total live verified jobs: ${dedupedJobs.length}`);
 
     // Save to DB Cache (24 hours TTL)
     try {
