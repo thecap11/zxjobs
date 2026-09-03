@@ -10,6 +10,7 @@ import { FreshersworldSource } from "./freshersworld-source";
 import { InstahyreSource } from "./instahyre-source";
 import { InternshalaSource } from "./internshala-source";
 import { SimplyHiredSource } from "./simplyhired-source";
+import { getFallbackJobs } from "./fallback-data";
 
 const sources: JobSource[] = [
   new LinkedInJobsSource(),    
@@ -19,7 +20,7 @@ const sources: JobSource[] = [
   new SimplyHiredSource(),
 ];
 
-const SEARCH_TIMEOUT_MS = 15000;
+const SEARCH_TIMEOUT_MS = 6500;
 
 const searchCache = new Map<string, { data: NormalizedJob[]; expiresAt: number }>();
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
@@ -95,8 +96,13 @@ export class JobAggregator {
       }
     });
 
-    const dedupedJobs = Array.from(uniqueJobsMap.values());
+    let dedupedJobs = Array.from(uniqueJobsMap.values());
     console.log(`Total: ${allJobs.length} raw → ${dedupedJobs.length} after dedup`);
+
+    if (dedupedJobs.length === 0) {
+      console.log(`[JobAggregator] Using curated jobs fallback for: ${cacheKey}`);
+      dedupedJobs = getFallbackJobs(criteria);
+    }
 
     // Save to DB Cache (24 hours TTL)
     try {

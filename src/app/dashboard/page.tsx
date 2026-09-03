@@ -40,7 +40,8 @@ export default function DashboardPage() {
         const data = await res.json();
         setMatches(data);
       } else {
-        setError("Failed to fetch jobs.");
+        const errData = await res.json().catch(() => ({}));
+        setError(errData.message || `Failed to fetch jobs (${res.status})`);
       }
     } catch (e) {
       setError("An error occurred while fetching jobs.");

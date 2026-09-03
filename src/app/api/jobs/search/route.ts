@@ -6,6 +6,9 @@ import { JobAggregator } from "@/lib/job-sources/aggregator";
 import { calculateMatch, rankJobs } from "@/lib/matching/engine";
 import { JobSearchCriteria } from "@/lib/job-sources/types";
 
+export const maxDuration = 60;
+export const dynamic = "force-dynamic";
+
 export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -68,8 +71,8 @@ export async function GET(req: Request) {
 
     // Return top 150 matches for performance (increased from 50)
     return NextResponse.json(rankedMatches.slice(0, 150));
-  } catch (error) {
+  } catch (error: any) {
     console.error("Job Search API Error:", error);
-    return NextResponse.json({ message: "Failed to fetch jobs" }, { status: 500 });
+    return NextResponse.json({ message: error?.message || "Failed to fetch jobs" }, { status: 500 });
   }
 }
